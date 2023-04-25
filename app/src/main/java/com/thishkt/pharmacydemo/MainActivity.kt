@@ -3,17 +3,15 @@ package com.thishkt.pharmacydemo
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import okhttp3.*
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        getPharmacyData()
+        postPharmacyData()
+//        getPharmacyData()
 
     }
 
@@ -43,5 +41,36 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+    }
+
+    private fun postPharmacyData(){
+        val testUrl =
+            "https://reqres.in/api/users"
+
+        //Part 1: 宣告 OkHttpClient
+        val okHttpClient = OkHttpClient().newBuilder().build()
+
+        //加入 FormBody 參數 name 和 job 。
+        val formBody: FormBody = FormBody.Builder()
+            .add("name", "HKT")
+            .add("job", "Teacher")
+            .build()
+
+        //Part 2: 宣告 Request，要求要連到指定網址
+        val request: Request = Request.Builder().url(testUrl).post(formBody).build()
+
+        //Part 3: 宣告 Call
+        val call = okHttpClient.newCall(request)
+
+        //執行 Call 連線後，採用 enqueue 非同步方式，獲取到回應的結果資料
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: java.io.IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Log.d("apple", "response: ${response.body?.string()}")
+            }
+        })
     }
 }
