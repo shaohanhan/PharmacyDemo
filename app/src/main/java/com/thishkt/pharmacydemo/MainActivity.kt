@@ -3,7 +3,6 @@ package com.thishkt.pharmacydemo
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -32,16 +31,20 @@ class MainActivity : AppCompatActivity() {
         //Part 3: 宣告 Call
         val call = okHttpClient.newCall(request)
 
-        //執行 Call 連線後，採用 enqueue 非同步方式，獲取到回應的結果資料
-        call.enqueue(object : Callback {
-            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                Log.e("HKT", "onFailure: $e")
-            }
+//        //執行 Call 連線後，採用 enqueue 非同步方式，獲取到回應的結果資料
+//        call.enqueue(object : Callback {
+//            override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+//                Log.e("HKT", "onFailure: $e")
+//            }
+//
+//            override fun onResponse(call: okhttp3.Call, response: Response) {
+//                Log.d("HKT", "onResponse: ${response.body?.string()}")
+//            }
+//        })
 
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                Log.d("HKT", "onResponse: ${response.body?.string()}")
-            }
-        })
+        // 測試採用 execute 同步的方式， 錯誤  Caused by: android.os.NetworkOnMainThreadException
+        val result:Response = call.execute()
+        Log.d("HKT", "onResponse: ${result.body?.string()}")
 
     }
 }
