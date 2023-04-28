@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
@@ -45,22 +46,46 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: okhttp3.Call, response: Response) {
-                val pharmaciesData : String? = response.body?.string()
+                val pharmaciesData: String? = response.body?.string()
                 // 將資料轉換成json
                 val obj = JSONObject(pharmaciesData)
-                //features 是一個陣列 [] ，需要將他轉換成 JSONArray
-                val featuresArray = JSONArray(obj.getString("features"))
-                //Log.d("HKT", "type: ${obj.getString("type")}")
+
+                // 檢查 異常 處理
+                // 方法一： has
+//                if(obj.has("features")){
+//                    Log.d("HKT", "type: ${obj.getString("features")}")
+//                }else{
+//                    Log.d("HKT", "沒有這個 KEY 值")
+//                }
+
+                // 方法二： isNull
+//                if(!obj.isNull("features")){
+//                    Log.d("HKT", "type: ${obj.getString("features")}")
+//                }else{
+//                    Log.d("HKT", "沒有這個 KEY 值")
+//                }
 
                 //藥局名稱變數宣告
                 val propertiesName = StringBuilder()
-                //迴圈取 array 資料
-                for (i in 0 until featuresArray.length()){
-                    val properties = featuresArray.getJSONObject(i).getString("properties")
-                    val propertiesObj = JSONObject(properties)
 
-                    //將每次獲取到的藥局名稱，多加跳行符號，存到變數中
-                    propertiesName.append(propertiesObj.getString("name") + "\n")
+                // 方法三：try catch
+                try {
+                    //features 是一個陣列 [] ，需要將他轉換成 JSONArray
+                    val featuresArray = JSONArray(obj.getString("features"))
+                    //Log.d("HKT", "type: ${obj.getString("type")}")
+
+                    //迴圈取 array 資料
+                    for (i in 0 until featuresArray.length()){
+                        val properties = featuresArray.getJSONObject(i).getString("properties")
+                        val propertiesObj = JSONObject(properties)
+
+                        //將每次獲取到的藥局名稱，多加跳行符號，存到變數中
+                        propertiesName.append(propertiesObj.getString("name") + "\n")
+                    }
+                }catch(e: JSONException){
+                    Log.e("HKT", "JSONException: $e")
+                }catch (e: Exception){
+                    Log.e("HKT", "Exception: $e")
                 }
 
                 runOnUiThread{
