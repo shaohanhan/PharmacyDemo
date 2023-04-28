@@ -8,6 +8,8 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         //口罩資料網址
         val pharmaciesDataUrl =
             "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json"
-//            "https://raw.githubusercontent.com/thishkt/pharmacies/master/data/info.json"
 
         //Part 1: 宣告 OkHttpClient
         val okHttpClient = OkHttpClient().newBuilder().build()
@@ -45,11 +46,26 @@ class MainActivity : AppCompatActivity() {
 
             override fun onResponse(call: okhttp3.Call, response: Response) {
                 val pharmaciesData : String? = response.body?.string()
-//                Log.d("HKT", "onResponse: pharmaciesData")
+                // 將資料轉換成json
+                val obj = JSONObject(pharmaciesData)
+                //features 是一個陣列 [] ，需要將他轉換成 JSONArray
+                val featuresArray = JSONArray(obj.getString("features"))
+                //Log.d("HKT", "type: ${obj.getString("type")}")
+
+                //藥局名稱變數宣告
+                val propertiesName = StringBuilder()
+                //迴圈取 array 資料
+                for (i in 0 until featuresArray.length()){
+                    val properties = featuresArray.getJSONObject(i).getString("properties")
+                    val propertiesObj = JSONObject(properties)
+
+                    //將每次獲取到的藥局名稱，多加跳行符號，存到變數中
+                    propertiesName.append(propertiesObj.getString("name") + "\n")
+                }
 
                 runOnUiThread{
                     //將 Okhttp 獲取到的回應值，指定到畫面的 TextView 元件中
-                    binding.tvPharmaciesData.text= pharmaciesData
+                    binding.tvPharmaciesData.text= propertiesName
                 }
             }
         })
