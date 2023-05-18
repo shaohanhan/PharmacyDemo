@@ -3,6 +3,8 @@ package com.thishkt.pharmacydemo
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
+import com.thishkt.pharmacydemo.data.PharmacyInfo
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -39,7 +41,12 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onResponse(call: okhttp3.Call, response: Response) {
-                Log.d("HKT", "onResponse: ${response.body?.string()}")
+                val pharmaciesData = response.body?.string()
+
+                val pharmacyInfo = Gson().fromJson(pharmaciesData, PharmacyInfo::class.java)
+                for (i in pharmacyInfo.features) {
+                    Log.d("HKT", "name: ${i.properties.name}, phone ${i.properties.phone}")
+                }
             }
         })
 
